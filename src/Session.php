@@ -176,7 +176,9 @@ class Session implements SessionInterface
      */
     public function getId(): string
     {
-        return session_id();
+        $id = session_id();
+        
+        return ($id !== false) ? $id : ''; // session_id returns false on failure
     }
 
     /**
@@ -210,7 +212,7 @@ class Session implements SessionInterface
     {
         $name = session_name();
 
-        return $name ? $name : '';
+        return ($name !== false) ? $name : '';
     }
 
     /**
