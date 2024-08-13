@@ -34,7 +34,7 @@ class RegenerateIdMethodSegmentedSessionTest extends TestCase
         $this->assertTrue($session->regenerateId());
 
         $this->assertNotEquals($sessionId, session_id());
-        
+
         $sessionId2 = session_id();
 
         $this->assertTrue($session->regenerateId());

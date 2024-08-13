@@ -14,6 +14,7 @@
 namespace Josantonius\Session\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Josantonius\Session\Session;
 use Josantonius\Session\FlashableSessionSegment as SegSession;
 
 class SetInCurrentFlashMethodTest extends TestCase
@@ -28,15 +29,15 @@ class SetInCurrentFlashMethodTest extends TestCase
      */
     public function test_should_correctly_set_attributes(): void
     {
-        $storage = new \Josantonius\Session\Session();
+        $storage = new Session();
         $session = new SegSession('da-segment', $storage);
-        
+
         $session->setInCurrentFlash('foo-current-1', 'val-in-current-1');
         $session->setInCurrentFlash('foo-current-2', 'val-in-current-2');
-        
+
         $this->assertTrue($session->hasInCurrentFlash('foo-current-1'));
         $this->assertTrue($session->hasInCurrentFlash('foo-current-2'));
-        
+
         $this->assertEquals('val-in-current-1', $session->getFromCurrentFlash('foo-current-1'));
         $this->assertEquals('val-in-current-2', $session->getFromCurrentFlash('foo-current-2'));
     }

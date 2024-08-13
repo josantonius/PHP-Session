@@ -14,6 +14,7 @@
 namespace Josantonius\Session\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Josantonius\Session\Session;
 use Josantonius\Session\FlashableSessionSegment as SegSession;
 
 class GetStorageMethodTest extends TestCase
@@ -28,9 +29,9 @@ class GetStorageMethodTest extends TestCase
      */
     public function test_should_get_attribute_if_exists_when_session_started_outside_library(): void
     {
-        $storage = new \Josantonius\Session\Session();
+        $storage = new Session();
         $session = new SegSession('da-segment', $storage);
-        
+
         $this->assertSame($storage, $session->getStorage());
     }
 }

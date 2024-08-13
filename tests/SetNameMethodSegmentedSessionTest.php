@@ -30,7 +30,7 @@ class SetNameMethodSegmentedSessionTest extends TestCase
     {
         $session = new SegSession('da-segment'); // auto-starts session
         $originalSessionName = $session->getName();
-        
+
         $session->setName('foo');
 
         $this->assertEquals($originalSessionName, session_name());

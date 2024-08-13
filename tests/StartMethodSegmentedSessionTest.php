@@ -29,7 +29,7 @@ class StartMethodSegmentedSessionTest extends TestCase
     public function test_session_should_always_be_started_since_it_gets_auto_started_in_constructor(): void
     {
         $session = new SegSession('da-segment');
-        
+
         $this->assertTrue($session->start());
 
         $this->assertEquals(PHP_SESSION_ACTIVE, session_status());

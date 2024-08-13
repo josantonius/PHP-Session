@@ -38,16 +38,16 @@ class PullMethodSegmentedSessionTest extends TestCase
 
         // pull above should not affect $_SESSION['foo']
         $this->assertArrayHasKey('foo', $_SESSION);
-        
+
         $session->set('foo', 'bar2'); // this will be stored in the segment
-        
+
         // we are pulling the foo in the segment & not $_SESSION['foo']
         $this->assertEquals('bar2', $session->pull('foo'));
-        
+
         // foo set directly in $_SESSION remains unchanged
         $this->assertArrayHasKey('foo', $_SESSION);
         $this->assertEquals('bar', $_SESSION['foo']);
-        
+
         // foo in segment has been removed
         $this->assertIsArray($_SESSION[$session->getSegmentName()]);
         $this->assertArrayNotHasKey('foo', $_SESSION[$session->getSegmentName()]);

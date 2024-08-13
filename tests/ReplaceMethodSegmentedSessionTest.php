@@ -34,18 +34,18 @@ class ReplaceMethodSegmentedSessionTest extends TestCase
 
         // foo has not yet been set in the segment
         $this->assertFalse($session->has('foo'));
-        
+
         // bar should not be in the segment
         $this->assertFalse($session->has('bar'));
-        
+
         $session->replace(['foo' => 'bar']);
-        
+
         // foo was just set via the call to replace above
         $this->assertTrue($session->has('foo'));
 
         // $_SESSION['bar'] should be untouched
         $this->assertEquals('foo', $_SESSION['bar']);
-        
+
         // assert that replaced value is present
         $this->assertEquals('bar', $session->get('foo'));
     }
@@ -56,15 +56,15 @@ class ReplaceMethodSegmentedSessionTest extends TestCase
     public function test_should_replace_attributes_if_exist(): void
     {
         $session = new SegSession('da-segment');
-        
+
         $session->set('foo', 'bar');
         $session->set('bar', 'foo');
 
         $session->replace(['foo' => 'val']);
-        
+
         $this->assertEquals('val', $session->get('foo'));
         $this->assertEquals('foo', $session->get('bar'));
-        
+
         $this->assertArrayNotHasKey('foo', $_SESSION);
         $this->assertArrayNotHasKey('bar', $_SESSION);
     }

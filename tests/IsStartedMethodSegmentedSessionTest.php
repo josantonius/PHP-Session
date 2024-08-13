@@ -29,7 +29,7 @@ class IsStartedMethodSegmentedSessionTest extends TestCase
     public function test_should_check_if_session_is_active(): void
     {
         $session = new SegSession('da-segment');
-        
+
         $this->assertTrue($session->isStarted()); // always auto-started
 
         $session->start();
@@ -44,7 +44,7 @@ class IsStartedMethodSegmentedSessionTest extends TestCase
     {
         session_start();
         $session = new SegSession('da-segment');
-        
+
         $this->assertTrue($session->isStarted()); // always auto-started
 
         $session->start();

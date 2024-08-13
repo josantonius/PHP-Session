@@ -48,7 +48,7 @@ class StartMethodTest extends TestCase
      */
     public function test_should_accept_options(): void
     {
-        $this->session->start(['cookie_lifetime' => 8000, 'name'=>'boooo']);
+        $this->session->start(['cookie_lifetime' => 8000, 'name' => 'boooo']);
 
         $this->assertEquals(8000, ini_get('session.cookie_lifetime'));
         $this->assertEquals('boooo', $this->session->getName());

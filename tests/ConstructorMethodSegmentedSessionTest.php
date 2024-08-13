@@ -28,7 +28,7 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
     {
         parent::setUp();
     }
-    
+
     /**
      * @runInSeparateProcess
      */
@@ -40,25 +40,25 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
         ];
         $segmentName = 'da-segment';
         $session = new SegSession($segmentName, null, $options);
-        
+
         // Session was started outside the library.
         $this->assertTrue($session->isStarted());
-        
+
         // Check that the segment name was properly set in the session object
         $this->assertEquals($segmentName, $session->getSegmentName());
-        
+
         // Check that session options were not set in the constructor
         // since in this scenario the session was started outside the library.
         $this->assertEquals($options['name'], $session->getName());
         $this->assertEquals($options['cookie_lifetime'], ini_get('session.cookie_lifetime'));
-        
+
         // check that flash was initialized
-        $this->assertArrayHasKey($segmentName , $_SESSION);
-        $this->assertEquals([SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []] , $_SESSION[$segmentName]);
-        $this->assertArrayHasKey(SegSession::FLASH_DATA_FOR_NEXT_REQUEST , $_SESSION[$segmentName]);
-        $this->assertEquals([] , $_SESSION[$segmentName][SegSession::FLASH_DATA_FOR_NEXT_REQUEST]);
+        $this->assertArrayHasKey($segmentName, $_SESSION);
+        $this->assertEquals([SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []], $_SESSION[$segmentName]);
+        $this->assertArrayHasKey(SegSession::FLASH_DATA_FOR_NEXT_REQUEST, $_SESSION[$segmentName]);
+        $this->assertEquals([], $_SESSION[$segmentName][SegSession::FLASH_DATA_FOR_NEXT_REQUEST]);
     }
-    
+
     /**
      * @runInSeparateProcess
      */
@@ -71,26 +71,26 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
         ];
         $segmentName = 'da-segment';
         $session = new SegSession($segmentName, null, $options);
-        
+
         // Session was started outside the library.
         $this->assertTrue($session->isStarted());
-        
+
         // Check that the segment name was properly set in the session object
         $this->assertEquals($segmentName, $session->getSegmentName());
-        
+
         // Check that session options were not set in the constructor
         // since in this scenario the session was started outside the library.
         $this->assertEquals('PHPSESSID', $session->getName());
         $this->assertNotEquals($options['name'], $session->getName());
         $this->assertNotEquals($options['cookie_lifetime'], ini_get('session.cookie_lifetime'));
-        
+
         // check that flash was initialized
-        $this->assertArrayHasKey($segmentName , $_SESSION);
-        $this->assertEquals([SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []] , $_SESSION[$segmentName]);
-        $this->assertArrayHasKey(SegSession::FLASH_DATA_FOR_NEXT_REQUEST , $_SESSION[$segmentName]);
-        $this->assertEquals([] , $_SESSION[$segmentName][SegSession::FLASH_DATA_FOR_NEXT_REQUEST]);
+        $this->assertArrayHasKey($segmentName, $_SESSION);
+        $this->assertEquals([SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []], $_SESSION[$segmentName]);
+        $this->assertArrayHasKey(SegSession::FLASH_DATA_FOR_NEXT_REQUEST, $_SESSION[$segmentName]);
+        $this->assertEquals([], $_SESSION[$segmentName][SegSession::FLASH_DATA_FOR_NEXT_REQUEST]);
     }
-    
+
     /**
      * @runInSeparateProcess
      */
@@ -99,11 +99,11 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
         $segmentName = 'da-segment';
         $storage = new Session();
         $session = new SegSession($segmentName, $storage);
-        
+
         // Injected $storage should be returned by $session->getStorage()
         $this->assertSame($storage, $session->getStorage());
     }
-    
+
     /**
      * @runInSeparateProcess
      */
@@ -113,13 +113,14 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
         $segmentName = 'da-segment';
         $storage = new Session();
         $session = new SegSession($segmentName, $storage);
-        
+
         // Injected $storage should be returned by $session->getStorage()
         $this->assertSame($storage, $session->getStorage());
     }
-    
+
     /**
      * @runInSeparateProcess
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function test_should_fail_with_empty_segment_name(): void
     {
@@ -127,9 +128,10 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
 
         $session = new SegSession('');
     }
-    
+
     /**
      * @runInSeparateProcess
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     public function test_should_fail_with_wrong_options(): void
     {
@@ -137,7 +139,10 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
 
         $session = new SegSession('a', null, ['foo' => 'bar']);
     }
-    
+
+    /**
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     */
     public function test_should_fail_when_headers_sent(): void
     {
         // Because we are not running this in a separate process it will trigger the exception
@@ -145,27 +150,28 @@ class ConstructorMethodSegmentedSessionTest extends TestCase
 
         $session = new SegSession('a');
     }
-    
+
     /**
      * @runInSeparateProcess
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function test_should_fail_when_session_not_startable(): void
     {
         $this->expectException(SessionNotStartedException::class);
 
-        $sessionStorageThatNeverStarts = new class('vlah') extends SegSession {
-          
-            public function start(array $options = []): bool 
+        $unstartableSsStorage = new class ('vlah') extends SegSession {
+            public function start(array $options = []): bool
             {
                 return false;
             }
-            
+
             public function isStarted(): bool
             {
                 return false;
             }
         };
-        
-        $session = new SegSession('a', $sessionStorageThatNeverStarts);
+
+        $session = new SegSession('a', $unstartableSsStorage);
     }
 }

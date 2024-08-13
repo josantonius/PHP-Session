@@ -14,6 +14,7 @@
 namespace Josantonius\Session\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Josantonius\Session\Session;
 use Josantonius\Session\FlashableSessionSegment as SegSession;
 
 class SetInNextFlashMethodTest extends TestCase
@@ -28,15 +29,15 @@ class SetInNextFlashMethodTest extends TestCase
      */
     public function test_should_correctly_set_attributes(): void
     {
-        $storage = new \Josantonius\Session\Session();
+        $storage = new Session();
         $session = new SegSession('da-segment', $storage);
-        
+
         $session->setInNextFlash('foo-next-1', 'val-in-next-1');
         $session->setInNextFlash('foo-next-2', 'val-in-next-2');
-        
+
         $this->assertTrue($session->hasInNextFlash('foo-next-1'));
         $this->assertTrue($session->hasInNextFlash('foo-next-2'));
-        
+
         $this->assertEquals('val-in-next-1', $session->getFromNextFlash('foo-next-1'));
         $this->assertEquals('val-in-next-2', $session->getFromNextFlash('foo-next-2'));
     }

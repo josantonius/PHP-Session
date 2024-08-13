@@ -29,26 +29,26 @@ class AllMethodSegmentedSessionTest extends TestCase
     public function test_should_get_all_attributes_in_segment(): void
     {
         $session = new SegSession('da-segment');
-        
+
         $this->assertIsArray($_SESSION);
 
         $session->set('foo', 'bar');
 
         $this->assertEquals(['foo' => 'bar', SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []], $session->all());
-        
+
         // foo should only be inside $_SESSION[$session->getSegmentName()]
         $this->assertArrayNotHasKey('foo', $_SESSION);
-        
+
         // SegSession::FLASH_DATA_FOR_NEXT_REQUEST should only be inside $_SESSION[$session->getSegmentName()]
         $this->assertArrayNotHasKey(SegSession::FLASH_DATA_FOR_NEXT_REQUEST, $_SESSION);
-        
+
         $this->assertEquals(
             [
-                $session->getSegmentName() => 
+                $session->getSegmentName() =>
                     [
                         'foo' => 'bar', SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []
                     ]
-            ], 
+            ],
             $_SESSION
         );
     }
@@ -59,33 +59,33 @@ class AllMethodSegmentedSessionTest extends TestCase
     public function test_should_get_all_attributes_in_segment_when_session_started_outside_library(): void
     {
         session_start();
-        
+
         $this->assertIsArray($_SESSION);
-        
+
         $session = new SegSession('da-segment');
-        
+
         $_SESSION['top-key'] = 'top-value';
 
         $session->set('foo', 'bar');
 
         $this->assertEquals(['foo' => 'bar', SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []], $session->all());
-        
+
         // foo should only be inside $_SESSION[$session->getSegmentName()]
         $this->assertArrayNotHasKey('foo', $_SESSION);
-        
+
         // SegSession::FLASH_DATA_FOR_NEXT_REQUEST should only be inside $_SESSION[$session->getSegmentName()]
         $this->assertArrayNotHasKey(SegSession::FLASH_DATA_FOR_NEXT_REQUEST, $_SESSION);
-        
+
         // Make sure both data set in $_SESSION from outside & within this
         // library are where they should be
         $this->assertEquals(
             [
                 'top-key' => 'top-value',
-                $session->getSegmentName() => 
+                $session->getSegmentName() =>
                     [
                         'foo' => 'bar', SegSession::FLASH_DATA_FOR_NEXT_REQUEST => []
                     ]
-            ], 
+            ],
             $_SESSION
         );
     }

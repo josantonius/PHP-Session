@@ -29,7 +29,7 @@ class GetIdMethodSegmentedSessionTest extends TestCase
     public function test_should_get_session_id(): void
     {
         $session = new SegSession('da-segment');
-        
+
         // Should have the same id as it's internal storage object
         $this->assertEquals($session->getId(), $session->getStorage()->getId());
     }
@@ -40,9 +40,9 @@ class GetIdMethodSegmentedSessionTest extends TestCase
     public function test_should_get_session_id_when_session_started_outside_library(): void
     {
         session_start();
-        
+
         $session = new SegSession('da-segment');
-        
+
         // Should have the same id as it's internal storage object
         $this->assertEquals($session->getId(), $session->getStorage()->getId());
     }

@@ -24,7 +24,7 @@ use Josantonius\Session\Exceptions\WrongSessionOptionException;
 class Session implements SessionInterface
 {
     use ExceptionThrowingMethodsTrait;
-    
+
     /**
      * Starts the session.
      *
@@ -68,12 +68,11 @@ class Session implements SessionInterface
         $this->throwExceptionIfHeadersWereSent();
         $this->throwExceptionIfSessionWasStarted();
         $this->throwExceptionIfHasWrongOptions($options);
-        
-        if(isset($options['name'])) {
-            
+
+        if (isset($options['name'])) {
             session_name($options['name']);
         }
-        
+
         return session_start($options);
     }
 
@@ -176,9 +175,10 @@ class Session implements SessionInterface
      */
     public function getId(): string
     {
-        $id = session_id();
-        
-        return ($id !== false) ? $id : ''; // session_id returns false on failure
+        $sessionId = session_id();
+
+        // session_id returns false on failure
+        return ($sessionId !== false) ? $sessionId : '';
     }
 
     /**

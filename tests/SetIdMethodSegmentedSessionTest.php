@@ -30,7 +30,7 @@ class SetIdMethodSegmentedSessionTest extends TestCase
     {
         $session = new SegSession('da-segment');
         $originalId = $session->getId();
-        
+
         $session->setId('foo');
 
         $this->assertEquals($originalId, session_id());

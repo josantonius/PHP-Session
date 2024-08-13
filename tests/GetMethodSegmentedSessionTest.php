@@ -33,7 +33,7 @@ class GetMethodSegmentedSessionTest extends TestCase
         $session->set('foo', 'bar');
 
         $this->assertEquals('bar', $session->get('foo'));
-        
+
         // Verify that set item was inside the segment in $_SESSION and not directly in $_SESSION
         $this->assertArrayHasKey('foo', $_SESSION[$session->getSegmentName()]);
         $this->assertEquals('bar', $_SESSION[$session->getSegmentName()]['foo']);
@@ -46,13 +46,13 @@ class GetMethodSegmentedSessionTest extends TestCase
     public function test_should_get_attribute_if_exists_when_session_started_outside_library(): void
     {
         session_start();
-        
+
         $session = new SegSession('da-segment');
 
         $session->set('foo', 'bar');
 
         $this->assertEquals('bar', $session->get('foo'));
-        
+
         // Verify that set item was inside the segment in $_SESSION and not directly in $_SESSION
         $this->assertArrayHasKey('foo', $_SESSION[$session->getSegmentName()]);
         $this->assertEquals('bar', $_SESSION[$session->getSegmentName()]['foo']);
@@ -75,7 +75,7 @@ class GetMethodSegmentedSessionTest extends TestCase
     public function test_should_get_default_value_if_not_exists_when_session_started_outside_library(): void
     {
         session_start();
-        
+
         $session = new SegSession('da-segment');
 
         $this->assertNull($session->get('foo'));
@@ -97,7 +97,7 @@ class GetMethodSegmentedSessionTest extends TestCase
     public function test_should_get_custom_default_value_if_not_exists_when_session_started_outside_library(): void
     {
         session_start();
-        
+
         $session = new SegSession('da-segment');
 
         $this->assertEquals('bar', $session->get('foo', 'bar'));
@@ -111,7 +111,7 @@ class GetMethodSegmentedSessionTest extends TestCase
         session_start();
 
         $_SESSION['foo'] = 'bar';
-        
+
         $session = new SegSession('da-segment');
 
         $this->assertNull($session->get('foo'));

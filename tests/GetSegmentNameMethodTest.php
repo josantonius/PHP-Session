@@ -29,7 +29,7 @@ class GetSegmentNameMethodTest extends TestCase
     public function test_should_get_attribute_if_exists_when_session_started_outside_library(): void
     {
         $session = new SegSession('da-segment');
-        
+
         $this->assertEquals('da-segment', $session->getSegmentName());
     }
 }

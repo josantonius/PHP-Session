@@ -16,6 +16,9 @@ namespace Josantonius\Session\Tests;
 use PHPUnit\Framework\TestCase;
 use Josantonius\Session\FlashableSessionSegment as SegSession;
 
+/**
+ * @SuppressWarnings(PHPMD.LongVariable)
+ */
 class ClearMethodSegmentedSessionTest extends TestCase
 {
     public function setUp(): void
@@ -31,14 +34,14 @@ class ClearMethodSegmentedSessionTest extends TestCase
         $session = new SegSession('da-segment');
 
         $_SESSION['bar'] = 'foo';
-        
+
         $session->set('foo', 'bar');
-        
+
         $segmentBeforeClearing = [
             'foo' => 'bar',
             SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],
         ];
-        
+
         // Verify segment data before clearing
         $this->assertEquals($segmentBeforeClearing, $_SESSION[$session->getSegmentName()]);
 
@@ -46,10 +49,10 @@ class ClearMethodSegmentedSessionTest extends TestCase
 
         // Cleared segment should only contain an empty array for flash data
         $this->assertEquals(
-            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],], 
+            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],],
             $_SESSION[$session->getSegmentName()]
         );
-        
+
         // Items set directly in $_SESSION should still be present & not cleared
         $this->assertArrayHasKey('bar', $_SESSION);
         $this->assertEquals('foo', $_SESSION['bar']);
@@ -61,20 +64,20 @@ class ClearMethodSegmentedSessionTest extends TestCase
     public function test_should_clear_only_session_segment_when_session_started_outside_library(): void
     {
         session_start();
-        
+
         $_SESSION['bar'] = 'foo';
-        
+
         $session = new SegSession('da-segment');
 
         $_SESSION['bar1'] = 'foo1';
-        
+
         $session->set('foo', 'bar');
-        
+
         $segmentBeforeClearing = [
             'foo' => 'bar',
             SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],
         ];
-        
+
         // Verify segment data before clearing
         $this->assertEquals($segmentBeforeClearing, $_SESSION[$session->getSegmentName()]);
 
@@ -82,10 +85,10 @@ class ClearMethodSegmentedSessionTest extends TestCase
 
         // Cleared segment should only contain an empty array for flash data
         $this->assertEquals(
-            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],], 
+            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],],
             $_SESSION[$session->getSegmentName()]
         );
-        
+
         // Items set directly in $_SESSION should still be present & not cleared
         $this->assertArrayHasKey('bar', $_SESSION);
         $this->assertArrayHasKey('bar1', $_SESSION);

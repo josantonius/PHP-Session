@@ -29,14 +29,14 @@ class RemoveMethodSegmentedSessionTest extends TestCase
     public function test_should_remove_attribute_even_if_not_exist(): void
     {
         $session = new SegSession('da-segment');
-        
-        $originalSegmentContent = $session->all();
+
+        $originalSegContent = $session->all();
 
         $session->remove('foo');
 
-        $this->assertEquals($originalSegmentContent, $session->all());
+        $this->assertEquals($originalSegContent, $session->all());
     }
-    
+
     /**
      * @runInSeparateProcess
      */
@@ -51,17 +51,17 @@ class RemoveMethodSegmentedSessionTest extends TestCase
         // Remove above should not affect $_SESSION['foo']
         $this->assertArrayHasKey('foo', $_SESSION);
         $this->assertEquals('bar', $_SESSION['foo']);
-        
+
         // Set foo in the segment
         $session->set('foo', 'bar2');
-        
+
         // foo should be in segment
         $this->assertTrue($session->has('foo'));
         $this->assertEquals('bar2', $session->get('foo'));
-        
+
         $session->remove('foo'); // foo in the segment will be removed
         $this->assertFalse($session->has('foo'));
-        
+
         // $_SESSION['foo'] should still remain unaffected
         $this->assertArrayHasKey('foo', $_SESSION);
         $this->assertEquals('bar', $_SESSION['foo']);

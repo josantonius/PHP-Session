@@ -42,7 +42,7 @@ class HasMethodSegmentedSessionTest extends TestCase
     {
         session_start();
         $_SESSION['foo'] = 'bar';
-  
+
         $session = new SegSession('da-segment');
         $this->assertFalse($session->has('foo'));
     }

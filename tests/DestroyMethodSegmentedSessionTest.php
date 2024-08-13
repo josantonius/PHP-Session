@@ -31,26 +31,26 @@ class DestroyMethodSegmentedSessionTest extends TestCase
         $session = new SegSession('da-segment');
 
         $_SESSION['bar'] = 'foo';
-        
+
         $session->set('foo', 'bar');
-        
-        $segmentBeforeClearing = [
+
+        $segmBeforeClearing = [
             'foo' => 'bar',
             SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],
         ];
-        
+
         // Verify segment data before clearing
-        $this->assertEquals($segmentBeforeClearing, $_SESSION[$session->getSegmentName()]);
-        
+        $this->assertEquals($segmBeforeClearing, $_SESSION[$session->getSegmentName()]);
+
         // Verify that it always returns true
         $this->assertTrue($session->destroy());
 
         // Cleared segment should only contain an empty array for flash data
         $this->assertEquals(
-            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],], 
+            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],],
             $_SESSION[$session->getSegmentName()]
         );
-        
+
         // Items set directly in $_SESSION should still be present & not cleared
         $this->assertArrayHasKey('bar', $_SESSION);
         $this->assertEquals('foo', $_SESSION['bar']);
@@ -62,32 +62,32 @@ class DestroyMethodSegmentedSessionTest extends TestCase
     public function test_should_clear_only_session_segment_when_session_started_outside_library(): void
     {
         session_start();
-        
+
         $_SESSION['bar'] = 'foo';
-        
+
         $session = new SegSession('da-segment');
 
         $_SESSION['bar1'] = 'foo1';
-        
+
         $session->set('foo', 'bar');
-        
-        $segmentBeforeClearing = [
+
+        $segBeforeClearing = [
             'foo' => 'bar',
             SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],
         ];
-        
+
         // Verify segment data before clearing
-        $this->assertEquals($segmentBeforeClearing, $_SESSION[$session->getSegmentName()]);
+        $this->assertEquals($segBeforeClearing, $_SESSION[$session->getSegmentName()]);
 
         // Verify that it always returns true
         $this->assertTrue($session->destroy());
 
         // Cleared segment should only contain an empty array for flash data
         $this->assertEquals(
-            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],], 
+            [SegSession::FLASH_DATA_FOR_NEXT_REQUEST => [],],
             $_SESSION[$session->getSegmentName()]
         );
-        
+
         // Items set directly in $_SESSION should still be present & not cleared
         $this->assertArrayHasKey('bar', $_SESSION);
         $this->assertArrayHasKey('bar1', $_SESSION);
