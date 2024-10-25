@@ -16,7 +16,7 @@ namespace Josantonius\Session\Tests;
 use PHPUnit\Framework\TestCase;
 use Josantonius\Session\FlashableSessionSegment as SegSession;
 
-class GetFromNextFlashMethodTest extends TestCase
+class GetFromObjectsFlashMethodTest extends TestCase
 {
     public function setUp(): void
     {
@@ -30,7 +30,7 @@ class GetFromNextFlashMethodTest extends TestCase
     {
         $session = new SegSession('da-segment');
 
-        $this->assertNull($session->getFromNextFlash('foo'));
+        $this->assertNull($session->getFromObjectsFlash('foo'));
     }
 
     /**
@@ -40,7 +40,7 @@ class GetFromNextFlashMethodTest extends TestCase
     {
         $session = new SegSession('da-segment');
 
-        $this->assertEquals('bar', $session->getFromNextFlash('foo', 'bar'));
+        $this->assertEquals('bar', $session->getFromObjectsFlash('foo', 'bar'));
     }
 
     /**
@@ -50,20 +50,20 @@ class GetFromNextFlashMethodTest extends TestCase
     {
         $session = new SegSession('da-segment');
 
-        $session->setInNextFlash('foo', 'bar');
-        $session->setInNextFlash('bar', 'foo');
+        $session->setInObjectsFlash('foo', 'bar');
+        $session->setInObjectsFlash('bar', 'foo');
 
-        $this->assertEquals('bar', $session->getFromNextFlash('foo'));
-        $this->assertEquals('foo', $session->getFromNextFlash('bar'));
+        $this->assertEquals('bar', $session->getFromObjectsFlash('foo'));
+        $this->assertEquals('foo', $session->getFromObjectsFlash('bar'));
 
-        // these values should NOT be available in the next flash of the next instance below
-        $session->setInNextFlash('foo2', 'bar2');
-        $session->setInNextFlash('foo3', 'bar3');
+        // these values should be available in the current flash of the next instance below
+        $session->setInSessionFlash('foo2', 'bar2');
+        $session->setInSessionFlash('foo3', 'bar3');
 
         $session2 = new SegSession('da-segment');
 
-        // previous next flash items should NOT be in the next flash for this instance
-        $this->assertNotEquals('bar2', $session2->getFromNextFlash('foo2'));
-        $this->assertNotEquals('bar3', $session2->getFromNextFlash('foo3'));
+        // previous next flash items should now be in the current flash for this instance
+        $this->assertEquals('bar2', $session2->getFromObjectsFlash('foo2'));
+        $this->assertEquals('bar3', $session2->getFromObjectsFlash('foo3'));
     }
 }

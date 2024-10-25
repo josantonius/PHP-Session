@@ -32,17 +32,17 @@ class FlashableSessionSegment implements SessionInterface
     protected SessionInterface $storage;
 
     /**
-     * Flash data for current request is stored here.
+     * Flash data previously stored in session is copied here.
      *
      * It must be copied from
      * $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
      * every time an instance of this class is created.
      *
      * If $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
-     * isn't set, this $this->currentFlashData should maintain
+     * isn't set, this $this->objectsFlashData should maintain
      * the default value of empty array.
      */
-    protected array $currentFlashData = [];
+    protected array $objectsFlashData = [];
 
     /**
      * When different libraries and projects try to modify data with the same keys
@@ -112,8 +112,8 @@ class FlashableSessionSegment implements SessionInterface
      *
      * @param array $options session start configuration options that will be used to
      *                       automatically start a new session or resume existing session
-     *                       when an instance of this class is created. It must contain 
-     *                       the same valid options acceptable by 
+     *                       when an instance of this class is created. It must contain
+     *                       the same valid options acceptable by
      *                       https://www.php.net/manual/en/function.session-start.php
      *
      * @throws \Josantonius\Session\Exceptions\EmptySegmentNameException
@@ -141,7 +141,7 @@ class FlashableSessionSegment implements SessionInterface
         }
 
         $this->initializeOrReinitialize();
-        $this->moveNextFlashToCurrentFlash();
+        $this->moveSessionFlashToObjectsFlash();
     }
 
     protected function initializeOrReinitialize(): void
@@ -160,27 +160,21 @@ class FlashableSessionSegment implements SessionInterface
         }
     }
 
-    protected function moveNextFlashToCurrentFlash(): void
+    protected function moveSessionFlashToObjectsFlash(): void
     {
         if ($this->isStarted()) {
             ///////////////////////////////////////////////////////////////////////////
             // Flash update logic: We update the flash data by copying the existing
             // flash data stored in
             // $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
-            // to $this->currentFlashData & then reset
+            // to $this->objectsFlashData & then reset
             // $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
             // to an empty array.
-            //
-            // Flash data inside $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
-            // will only be accessible in the next request
-            //
-            // Flash data copied from $_SESSION into $this->currentFlashData from the previous
-            // request is flash data that will be accessible in the current request.
             ///////////////////////////////////////////////////////////////////////////
-            $this->currentFlashData = $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST] ?? [];
+            $this->objectsFlashData = $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST] ?? [];
 
             // Reset the flash data in session to an empty array
-            // but we still have the existing flash data in $this->currentFlashData
+            // but we still have the existing flash data in $this->objectsFlashData
             $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST] = [];
         }
     }
@@ -334,7 +328,7 @@ class FlashableSessionSegment implements SessionInterface
             $_SESSION[$this->segmentName] = [];
 
             // Reset the flash data in session segment to an empty arrays
-            $this->currentFlashData = [];
+            $this->objectsFlashData = [];
             $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST] = [];
         }
     }
@@ -410,23 +404,23 @@ class FlashableSessionSegment implements SessionInterface
 
     /**
      * Sets an item with the specified $key in the flash storage for an instance
-     * of this class (i.e. $this->currentFlashData).
+     * of this class (i.e. $this->objectsFlashData).
      *
      * The item will only be retrievable from the instance of this class it was set in.
      */
-    public function setInCurrentFlash(string $key, mixed $value): void
+    public function setInObjectsFlash(string $key, mixed $value): void
     {
-        $this->currentFlashData[$key] = $value;
+        $this->objectsFlashData[$key] = $value;
     }
 
     /**
      * Sets an item with the specified $key in the flash storage located in
      * $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
      *
-     * The item will only be retrievable by calling the getFromCurrentFlash
+     * The item will only be retrievable by calling getFromObjectsFlash
      * on the next instance of this class created with the same segment name.
      */
-    public function setInNextFlash(string $key, mixed $value): void
+    public function setInSessionFlash(string $key, mixed $value): void
     {
         $canSet = $this->isStarted()
             && isset($_SESSION[$this->segmentName])
@@ -440,32 +434,36 @@ class FlashableSessionSegment implements SessionInterface
 
     /**
      * Check if item with specified $key exists in the flash storage for
-     * an instance of this class (i.e. in $this->currentFlashData).
+     * an instance of this class (i.e. in $this->objectsFlashData).
      */
-    public function hasInCurrentFlash(string $key): bool
+    public function hasInObjectsFlash(string $key): bool
     {
         ////////////////////////////////////////////////////////////////////////
-        // Accessible flash data for current request is always inside
-        // $this->currentFlashData
+        // Flash data previously stored in $_SESSION is always loaded into
+        // $this->objectsFlashData
         // while
         // $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
-        // contains flash data for the next request
+        // contains flash data that will be loaded into $this->objectsFlashData
+        // for the next instance of this class with the same segmentName as this
+        // instance
         ////////////////////////////////////////////////////////////////////////
-        return \array_key_exists($key, $this->currentFlashData);
+        return \array_key_exists($key, $this->objectsFlashData);
     }
 
     /**
      * Check if item with specified $key exists in
      * $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST].
      */
-    public function hasInNextFlash(string $key): bool
+    public function hasInSessionFlash(string $key): bool
     {
         ////////////////////////////////////////////////////////////////////////
-        // Accessible flash data for current request is always inside
-        // $this->currentFlashData
+        // Flash data previously stored in $_SESSION is always loaded into
+        // $this->objectsFlashData
         // while
         // $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
-        // contains flash data for the next request
+        // contains flash data that will be loaded into $this->objectsFlashData
+        // for the next instance of this class with the same segmentName as this
+        // instance
         ////////////////////////////////////////////////////////////////////////
         return
             ( // Check in this session object's segmented session data
@@ -479,18 +477,20 @@ class FlashableSessionSegment implements SessionInterface
 
     /**
      * Get an item with the specified $key from the flash storage for an instance
-     * of this class (i.e. $this->currentFlashData) if it exists or return $default.
+     * of this class (i.e. $this->objectsFlashData) if it exists or return $default.
      */
-    public function getFromCurrentFlash(string $key, mixed $default = null): mixed
+    public function getFromObjectsFlash(string $key, mixed $default = null): mixed
     {
         ////////////////////////////////////////////////////////////////////////
-        // Accessible flash data for current request is always inside
-        // $this->currentFlashData
+        // Flash data previously stored in $_SESSION is always loaded into
+        // $this->objectsFlashData
         // while
         // $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
-        // contains flash data for the next request
+        // contains flash data that will be loaded into $this->objectsFlashData
+        // for the next instance of this class with the same segmentName as this
+        // instance
         ////////////////////////////////////////////////////////////////////////
-        return ($this->isStarted() &&  $this->hasInCurrentFlash($key)) ? $this->currentFlashData[$key] : $default;
+        return ($this->isStarted() &&  $this->hasInObjectsFlash($key)) ? $this->objectsFlashData[$key] : $default;
     }
 
     /**
@@ -499,53 +499,55 @@ class FlashableSessionSegment implements SessionInterface
      * $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
      * if it exists or return $default.
      */
-    public function getFromNextFlash(string $key, mixed $default = null): mixed
+    public function getFromSessionFlash(string $key, mixed $default = null): mixed
     {
-        return ($this->isStarted() && $this->hasInNextFlash($key))
+        return ($this->isStarted() && $this->hasInSessionFlash($key))
                 ? $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST][$key]
                 : $default;
     }
 
     /**
      * Remove an item with the specified $key (if it exists) from:
-     * - the flash storage for an instance of this class (i.e. in $this->currentFlashData), if $for_current_request === true
-     * - $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST], if $for_next_request === true
+     * - the flash storage for an instance of this class (i.e. in $this->objectsFlashData), if $fromObjectsFlash === true
+     * - $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST], if $fromSessionFlash === true
      */
     public function removeFromFlash(
         string $key,
-        bool $forCurrentRequest = true,
-        bool $forNextRequest = false
+        bool $fromObjectsFlash = true,
+        bool $fromSessionFlash = false
     ): void {
         ////////////////////////////////////////////////////////////////////////
-        // Accessible flash data for current request is always inside
-        // $this->currentFlashData
+        // Flash data previously stored in $_SESSION is always loaded into
+        // $this->objectsFlashData
         // while
         // $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
-        // contains flash data for the next request
+        // contains flash data that will be loaded into $this->objectsFlashData
+        // for the next instance of this class with the same segmentName as this
+        // instance
         ////////////////////////////////////////////////////////////////////////
-        if ($forCurrentRequest && $this->hasInCurrentFlash($key)) {
-            unset($this->currentFlashData[$key]);
+        if ($fromObjectsFlash && $this->hasInObjectsFlash($key)) {
+            unset($this->objectsFlashData[$key]);
         }
 
-        if ($forNextRequest && $this->isStarted() && $this->hasInNextFlash($key)) {
+        if ($fromSessionFlash && $this->isStarted() && $this->hasInSessionFlash($key)) {
             // Remove it from this session object's segmented session data
             unset($_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST][$key]);
-        } // if($for_next_request)
+        }
     }
 
     /**
-     * Get all items in the flash storage for an instance of this class 
-     * (i.e. in $this->currentFlashData)
+     * Get all items in the flash storage for an instance of this class
+     * (i.e. in $this->objectsFlashData)
      */
-    public function getAllFromCurrentFlash(): array
+    public function getAllFromObjectsFlash(): array
     {
-        return $this->currentFlashData;
+        return $this->objectsFlashData;
     }
 
     /**
      * Get all items in $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
      */
-    public function getAllFromNextFlash(): array
+    public function getAllFromSessionFlash(): array
     {
         $canGet = $this->isStarted()
             && isset($_SESSION[$this->segmentName])

@@ -16,7 +16,7 @@ namespace Josantonius\Session\Tests;
 use PHPUnit\Framework\TestCase;
 use Josantonius\Session\FlashableSessionSegment as SegSession;
 
-class GetAllFromCurrentFlashMethodTest extends TestCase
+class GetAllFromObjectsFlashMethodTest extends TestCase
 {
     public function setUp(): void
     {
@@ -30,7 +30,7 @@ class GetAllFromCurrentFlashMethodTest extends TestCase
     {
         $session = new SegSession('da-segment');
 
-        $this->assertEquals([], $session->getAllFromCurrentFlash());
+        $this->assertEquals([], $session->getAllFromObjectsFlash());
     }
 
     /**
@@ -40,24 +40,24 @@ class GetAllFromCurrentFlashMethodTest extends TestCase
     {
         $session = new SegSession('da-segment');
 
-        $session->setInCurrentFlash('foo', 'bar');
-        $session->setInCurrentFlash('bar', 'foo');
+        $session->setInObjectsFlash('foo', 'bar');
+        $session->setInObjectsFlash('bar', 'foo');
 
         $this->assertEquals(
             ['foo' => 'bar', 'bar' => 'foo'],
-            $session->getAllFromCurrentFlash()
+            $session->getAllFromObjectsFlash()
         );
 
         // these values should be available in the current flash of the next instance below
-        $session->setInNextFlash('foo2', 'bar2');
-        $session->setInNextFlash('foo3', 'bar3');
+        $session->setInSessionFlash('foo2', 'bar2');
+        $session->setInSessionFlash('foo3', 'bar3');
 
         $session2 = new SegSession('da-segment');
 
         // previous next flash items should now be in the current flash for this instance
         $this->assertEquals(
             ['foo2' => 'bar2', 'foo3' => 'bar3'],
-            $session2->getAllFromCurrentFlash()
+            $session2->getAllFromObjectsFlash()
         );
     }
 }

@@ -16,7 +16,7 @@ namespace Josantonius\Session\Tests;
 use PHPUnit\Framework\TestCase;
 use Josantonius\Session\FlashableSessionSegment as SegSession;
 
-class HasInNextFlashMethodTest extends TestCase
+class HasInObjectsFlashMethodTest extends TestCase
 {
     public function setUp(): void
     {
@@ -30,30 +30,30 @@ class HasInNextFlashMethodTest extends TestCase
     {
         $session = new SegSession('da-segment');
 
-        $this->assertFalse($session->hasInNextFlash('foo'));
+        $this->assertFalse($session->hasInObjectsFlash('foo'));
     }
 
     /**
      * @runInSeparateProcess
      */
-    public function test_should_return_right_values_before_and_after_setting_items_in_next_flash(): void
+    public function test_should_return_right_values_before_and_after_setting_items_in_current_flash(): void
     {
         $session = new SegSession('da-segment');
 
-        $this->assertFalse($session->hasInNextFlash('foo'));
+        $this->assertFalse($session->hasInObjectsFlash('foo'));
 
-        $session->setInNextFlash('foo', 'bar');
+        $session->setInObjectsFlash('foo', 'bar');
 
-        $this->assertTrue($session->hasInNextFlash('foo'));
+        $this->assertTrue($session->hasInObjectsFlash('foo'));
 
-        // these values should not be available in the next flash of the next instance below
-        $session->setInNextFlash('foo2', 'bar2');
-        $session->setInNextFlash('foo3', 'bar3');
+        // these values should be available in the current flash of the next instance below
+        $session->setInSessionFlash('foo2', 'bar2');
+        $session->setInSessionFlash('foo3', 'bar3');
 
         $session2 = new SegSession('da-segment');
 
-        // previous next flash items should not  be in the next flash for this instance
-        $this->assertFalse($session2->hasInNextFlash('foo2'));
-        $this->assertFalse($session2->hasInNextFlash('foo3'));
+        // previous next flash items should now be in the current flash for this instance
+        $this->assertTrue($session2->hasInObjectsFlash('foo2'));
+        $this->assertTrue($session2->hasInObjectsFlash('foo3'));
     }
 }
