@@ -112,7 +112,9 @@ class FlashableSessionSegment implements SessionInterface
      *
      * @param array $options session start configuration options that will be used to
      *                       automatically start a new session or resume existing session
-     *                       when an instance of this class is created
+     *                       when an instance of this class is created. It must contain 
+     *                       the same valid options acceptable by 
+     *                       https://www.php.net/manual/en/function.session-start.php
      *
      * @throws \Josantonius\Session\Exceptions\EmptySegmentNameException
      * @throws \Josantonius\Session\Exceptions\HeadersSentException
@@ -532,7 +534,8 @@ class FlashableSessionSegment implements SessionInterface
     }
 
     /**
-     * Get all items in the flash storage for an instance of this class (i.e. in $this->currentFlashData)
+     * Get all items in the flash storage for an instance of this class 
+     * (i.e. in $this->currentFlashData)
      */
     public function getAllFromCurrentFlash(): array
     {
