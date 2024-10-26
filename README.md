@@ -593,8 +593,10 @@ Remove an attribute & its corresponding value from the object instance's and / o
 ```php
 /**
  * Remove an item with the specified $key (if it exists) from:
+ * 
  * - the flash storage for an instance of this class (i.e. in $this->objectsFlashData),
  * if $fromObjectsFlash === true
+ * 
  * - $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST],
  * if $fromSessionFlash === true
  */
