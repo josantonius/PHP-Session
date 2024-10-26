@@ -1425,6 +1425,21 @@ $sessionSegment->destroy();
 
 The major use case of flashes is to store data that is only meant to be read from the session flash storage once and only once and immediately it is read once, it is automatically removed from the session flash storage.
 
+For example you may want to store a message indicating the status of an operation (like whether or not you were able to successfully delete a record from the database) in the the flash storage, which you intend to be read only once when another script runs that tries to read that data. Let's show how you can accomplish that between two scripts: **script-a.php** and **script-b.php**
+
+### script-a.php
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+// perform some operations
+// ......
+// .....
+
+$operationStatusMessage = "Operation Successful";
+
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
 
 
 ```
