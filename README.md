@@ -501,7 +501,9 @@ Set the session name:
 public function setName(string $name): void;
 ```
 
-Clear / free all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`, but does not destroy the session **$_SESSION**. **$_SESSION** data written outside this class will remain intact:
+Clear / free all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`, but does not destroy the session **$_SESSION**. 
+
+**$_SESSION** data written outside this class will remain intact:
 
 ```php
 /**
