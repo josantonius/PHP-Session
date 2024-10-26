@@ -10,3 +10,4 @@ php-session.code-workspace
 .repository.md
 .phpunit.result.cache
 coverage.xml
+/nbproject/

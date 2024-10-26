@@ -344,14 +344,293 @@ Destroys the session:
 public static function destroy(): bool;
 ```
 
-## Exceptions Used
+
+### Flashable Session Segment Class
+
+`Josantonius\Session\FlashableSessionSegment`
+
+This is a special type of Session class whose data is always stored in a sub-array in **$_SESSION**. This sub-array is automatically created & managed by each instance of this class and its key in **$_SESSION** is the string value passed as the first argument to this class' constructor. The session is always either auto-started or auto-resumed when an instance of this class is created, so you never need to explicitly call the **start** method after creating an instance of this class. This class also has flash functionality that allows you to store values in session via an instance of this class that are meant to be read once from session and removed after that one-time read (for example, you can set a login success notification message in session in your application using this flash mechanism and once the success message is read once from the session, it will no longer be available in session). You can also store non-flash values in session via each instance of this class that will stay in session until you explicitly remove them or the session expires or is destroyed. Both flash and non-flash values are stored in the earlier mentioned sub-array in **$_SESSION** and as a result, they are shielded from being overwritten by other parts of your application that write to **$_SESSION** directly as long as the key / segment name you specified for each instance of this class is unique & not being already used to store some other stuff in **$_SESSION**.
+
+The first non-optional argument to its constructor is a key (also referred to as a segment name) to the sub-array  in **$_SESSION** where all the data for the instance of `Josantonius\Session\FlashableSessionSegment` you are creating will be stored. Make sure the key you specify is a unique key that isn't being used by other packages in your application that write to **$_SESSION** so you don't have your data stored via an instance of this class overwritten by some other packages in your application.
+
+An instance of **Josantonius\Session\SessionInterface** can optionally be passed as the second argument to the constructor.
+This instance will be used to interact with the session (**$_SESSION**). If the second argument is **null**
+then an instance of **Josantonius\Session\Session** will be created & used to interact with the session (**$_SESSION**).
+
+The optional third argument to its constructor is an array of options for configuring the session. It must contain the same valid options acceptable by [session_start](https://www.php.net/manual/en/function.session-start.php).
+
+
+Create an instance of `Josantonius\Session\FlashableSessionSegment`:
 
 ```php
-use Josantonius\Session\Exceptions\HeadersSentException;
-use Josantonius\Session\Exceptions\SessionException;
+/**
+ * @throws EmptySegmentNameException   if an empty string (i.e. '' or "") was passed as the first argument
+ * @throws HeadersSentException        if headers already sent.
+ * @throws SessionNotStartedException  if session could not be started.
+ * @throws WrongSessionOptionException if setting options failed.
+ * 
+ * @param string $segmentName key to be used in $_SESSION to store all the data for an instance of this class
+
+ * @param null|\Josantonius\Session\SessionInterface $storage used for performing some session operations for each instance of this class. If null, an instance of \Josantonius\Session\Session will be created & used.
+ * 
+ * @param array $options session start configuration options that will be used to automatically start a new session or resume an existing session. It must contain the same valid options acceptable by https://www.php.net/manual/en/function.session-start.php.
+ * 
+ * @see https://php.net/session.configuration for List of available $options.
+ */
+public function __construct(string $segmentName, ?SessionInterface $storage = null, array $options = []);
+```
+
+Get the segment name (this is the key to the sub-array inside **$_SESSION** where all the data for an instance of `Josantonius\Session\FlashableSessionSegment` will be stored. It is the first argument passed to the constructor above):
+
+```php
+public function getSegmentName(): string;
+```
+
+Get the instance of `\Josantonius\Session\SessionInterface` being used to perform session operations on behalf of an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+public function getStorage(): SessionInterface;
+```
+
+Start the session:
+
+```php
+public function start(array $options = []): bool
+```
+
+Check if the session is started:
+
+```php
+public function isStarted(): bool;
+```
+
+Get all values stored via an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+public function all(): array
+```
+
+Check if an attribute exists via an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+public function has(string $name): bool
+```
+
+Get the corresponding value associated with an attribute that was stored via an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+/**
+ * Optionally defines a default value when the attribute does not exist.
+ */
+public function get(string $name, mixed $default = null): mixed
+```
+
+Set an attribute and its corresponding value via an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+public function set(string $name, mixed $value): void
+```
+
+Set several attribute & value pairs at once via an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+/**
+ * If attributes exist they are replaced, if they do not exist they are created.
+ */
+public function replace(array $data): void
+```
+
+Delete an attribute associated with an instance of `Josantonius\Session\FlashableSessionSegment` by name and returns its value:
+
+```php
+/**
+ * Optionally defines a default value when the attribute does not exist.
+ */
+public function pull(string $name, mixed $default = null): mixed
+```
+
+Delete an attribute associated with an instance of `Josantonius\Session\FlashableSessionSegment` by name:
+
+```php
+public function remove(string $name): void
+```
+
+Clear / free all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+public function clear(): void
+```
+
+Get the session ID:
+
+```php
+public function getId(): string
+```
+
+Set the session ID:
+
+```php
+/**
+ * This method will be of no effect if called outside the constructor
+ * of this class since the session will already be started after the
+ * constructor method finishes execution
+ */
+public function setId(string $sessionId): void
+```
+
+Update the current session ID with a newly generated one:
+
+```php
+public function regenerateId(bool $deleteOldSession = false): bool
+```
+
+Get the session name:
+
+```php
+public function getName(): string;
+```
+
+Set the session name:
+
+```php
+/**
+ * This method will be of no effect if called outside the constructor
+ * of this class since the session will already be started after the
+ * constructor method finishes execution.
+ */
+public function setName(string $name): void;
+```
+
+Clear / free all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`, but does not destroy the session **$_SESSION**. 
+
+**$_SESSION** data written outside this class will remain intact:
+
+```php
+/**
+ * Always returns true
+ */
+public function destroy(): bool;
+```
+
+
+> **Flash Mechanism:** every time an instance of `Josantonius\Session\FlashableSessionSegment` is created, an array to store flash data (meant to be read only once by the next instance of `Josantonius\Session\FlashableSessionSegment` with the same key / segment name) is either created inside the sub-array inside **$_SESSION** where all the data for the created instance of `Josantonius\Session\FlashableSessionSegment` will be stored or if that sub-sub-array for the flash data already exists in **$_SESSION**, it is copied into the **objectsFlashData** property of the created instance of `Josantonius\Session\FlashableSessionSegment` and reset to an empty array in **$_SESSION**. 
+
+> Flash data contained in the **objectsFlashData** property of an instance of `Josantonius\Session\FlashableSessionSegment` is referred to as the **current / object instance's flash data** (which is the copy of flash data read once from the session). Flash data set inside the sub-array in **$_SESSION** is referred to as the **next / session segment's flash data** (i.e. flash data to be copied from **$_SESSION** into the **objectsFlashData** property of the next instance of `Josantonius\Session\FlashableSessionSegment` with the same key / segment name as the current instance used to store the flash data in **$_SESSION**).
+
+> Below are methods related to storing and retrieving flash data. More concrete examples of how to store and retrieve flash data will be shown in the usage section later below.
+
+Set an attribute & value in the object instance's flash for an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+/**
+ * Sets an item with the specified $key in the flash storage for an instance
+ * of this class (i.e. $this->objectsFlashData).
+ *
+ * The item will only be retrievable from the instance of this class it was set in.
+ */
+public function setInObjectsFlash(string $key, mixed $value): void
+```
+
+Set an attribute & value in the session segment's flash for an instance of `Josantonius\Session\FlashableSessionSegment`:
+
+```php
+/**
+ * Sets an item with the specified $key in the flash storage located in
+ * $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
+ *
+ * The item will only be retrievable by calling the getFromObjectsFlash
+ * on the next instance of this class created with the same segment name.
+ */
+public function setInSessionFlash(string $key, mixed $value): void
+```
+
+Check if an attribute exists in the object instance's flash:
+
+```php
+/**
+ * Check if item with specified $key exists in the flash storage for
+ * an instance of this class (i.e. in $this->objectsFlashData).
+ */
+public function hasInObjectsFlash(string $key): bool
+```
+
+
+Check if an attribute exists in the session segment's flash:
+
+```php
+/**
+ * Check if item with specified $key exists in
+ * $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST].
+ */
+public function hasInSessionFlash(string $key): bool
+```
+
+Get the value associated with a specified attribute from the object instance's flash:
+
+```php
+/**
+ * Get an item with the specified $key from the flash storage for an instance
+ * of this class (i.e. $this->objectsFlashData) if it exists or return $default.
+ */
+public function getFromObjectsFlash(string $key, mixed $default = null): mixed
+```
+
+
+Get the value associated with a specified attribute from the session segment's flash:
+
+```php
+/**
+ * Get an item with the specified $key from
+ *
+ * $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
+ * if it exists or return $default.
+ */
+public function getFromSessionFlash(string $key, mixed $default = null): mixed
+```
+
+Remove an attribute & its corresponding value from the object instance's and / or session segment's flash:
+
+```php
+/**
+ * Remove an item with the specified $key (if it exists) from:
+ * 
+ * - the flash storage for an instance of this class (i.e. in $this->objectsFlashData),
+ * if $fromObjectsFlash === true
+ * 
+ * - $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST],
+ * if $fromSessionFlash === true
+ */
+public function removeFromFlash(
+    string $key,
+    bool $fromObjectsFlash = true,
+    bool $fromSessionFlash = false
+): void 
+```
+
+Get all attributes & their corresponding values from the object instance's flash:
+
+```php
+/**
+ * Get all items in the flash storage for an instance of this class 
+ * (i.e. in $this->objectsFlashData)
+ */
+public function getAllFromObjectsFlash(): array
+```
+
+Get all attributes & their corresponding values from the session segment's flash:
+
+```php
+/**
+ * Get all items in $_SESSION[$this->segmentName][static::FLASH_DATA_FOR_NEXT_REQUEST]
+ */
+public function getAllFromSessionFlash(): array
+```
+
+## Exceptions Used in \Josantonius\Session\FlashableSessionSegment
+
+```php
+use Josantonius\Session\Exceptions\EmptySegmentNameException;
 use Josantonius\Session\Exceptions\SessionNotStartedException;
-use Josantonius\Session\Exceptions\SessionStartedException;
-use Josantonius\Session\Exceptions\WrongSessionOptionException;
 ```
 
 ## Usage
@@ -373,6 +652,26 @@ use Josantonius\Session\Facades\Session;
 
 Session::start();
 ```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+```
+
 
 ### Starts the session setting options
 
@@ -419,6 +718,29 @@ Session::start([
 ]);
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment(
+    'demo-segment', 
+    null, 
+    ['cookie_httponly' => true]
+);
+```
+
 ### Check if the session is started
 
 ```php
@@ -433,6 +755,27 @@ $session->isStarted();
 use Josantonius\Session\Facades\Session;
 
 Session::isStarted();
+```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->isStarted();
 ```
 
 ### Sets an attribute by name
@@ -451,6 +794,27 @@ use Josantonius\Session\Facades\Session;
 Session::set('foo', 'bar');
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->set('foo', 'bar');
+```
+
 ### Gets an attribute by name without setting a default value
 
 ```php
@@ -465,6 +829,27 @@ $session->get('foo'); // null if attribute does not exist
 use Josantonius\Session\Facades\Session;
 
 Session::get('foo'); // null if attribute does not exist
+```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->get('foo'); // null if attribute does not exist
 ```
 
 ### Gets an attribute by name setting a default value
@@ -483,6 +868,27 @@ use Josantonius\Session\Facades\Session;
 Session::get('foo', false); // false if attribute does not exist
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->get('foo', false); // false if attribute does not exist
+```
+
 ### Gets all attributes
 
 ```php
@@ -497,6 +903,27 @@ $session->all();
 use Josantonius\Session\Facades\Session;
 
 Session::all();
+```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->all();
 ```
 
 ### Check if an attribute exists in the session
@@ -515,6 +942,27 @@ use Josantonius\Session\Facades\Session;
 Session::has('foo');
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->has('foo');
+```
+
 ### Sets several attributes at once
 
 ```php
@@ -529,6 +977,28 @@ $session->replace(['foo' => 'bar', 'bar' => 'foo']);
 use Josantonius\Session\Facades\Session;
 
 Session::replace(['foo' => 'bar', 'bar' => 'foo']);
+```
+
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->replace(['foo' => 'bar', 'bar' => 'foo']);
 ```
 
 ### Deletes an attribute and returns its value or the default value if not exist
@@ -547,6 +1017,28 @@ use Josantonius\Session\Facades\Session;
 Session::pull('foo'); // null if attribute does not exist
 ```
 
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->pull('foo'); // null if attribute does not exist
+```
+
 ### Deletes an attribute and returns its value or the custom value if not exist
 
 ```php
@@ -561,6 +1053,27 @@ $session->pull('foo', false); // false if attribute does not exist
 use Josantonius\Session\Facades\Session;
 
 Session::pull('foo', false); // false if attribute does not exist
+```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->pull('foo', false); // false if attribute does not exist
 ```
 
 ### Deletes an attribute by name
@@ -579,6 +1092,27 @@ use Josantonius\Session\Facades\Session;
 Session::remove('foo');
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->remove('foo');
+```
+
 ### Free all session variables
 
 ```php
@@ -593,6 +1127,31 @@ $session->clear();
 use Josantonius\Session\Facades\Session;
 
 Session::clear();
+```
+
+### Free all session segment variables
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+// Only removes flash and non-flash data from the segment's 
+// sub-array in $_SESSION
+$sessionSegment->clear();
 ```
 
 ### Gets the session ID
@@ -611,6 +1170,27 @@ use Josantonius\Session\Facades\Session;
 Session::getId();
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->getId();
+```
+
 ### Sets the session ID
 
 ```php
@@ -625,6 +1205,31 @@ $session->setId('foo');
 use Josantonius\Session\Facades\Session;
 
 Session::setId('foo');
+```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's 
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+// Does nothing because sessions are auto-started for each
+// instance of \Josantonius\Session\FlashableSessionSegment.
+// Setting the ID after the session has already been started
+// is of no effect.
+$sessionSegment->setId('foo');
 ```
 
 ### Update the current session ID with a newly generated one
@@ -643,6 +1248,27 @@ use Josantonius\Session\Facades\Session;
 Session::regenerateId();
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->regenerateId();
+```
+
 ### Update the current session ID with a newly generated one deleting the old session
 
 ```php
@@ -657,6 +1283,27 @@ $session->regenerateId(true);
 use Josantonius\Session\Facades\Session;
 
 Session::regenerateId(true);
+```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->regenerateId(true);
 ```
 
 ### Gets the session name
@@ -675,6 +1322,27 @@ use Josantonius\Session\Facades\Session;
 Session::getName();
 ```
 
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+$sessionSegment->getName();
+```
+
 ### Sets the session name
 
 ```php
@@ -689,6 +1357,31 @@ $session->setName('foo');
 use Josantonius\Session\Facades\Session;
 
 Session::setName('foo');
+```
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+// Does nothing because sessions are auto-started for each
+// instance of \Josantonius\Session\FlashableSessionSegment.
+// Setting the session name after the session has already 
+// been started is of no effect.
+$sessionSegment->setName('foo');
 ```
 
 ### Destroys the session
@@ -706,6 +1399,214 @@ use Josantonius\Session\Facades\Session;
 
 Session::destroy();
 ```
+
+### Destroy the session segment but not the session
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+/////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array
+// 
+// OR
+// 
+// auto-resume existing session & read flash
+// data in $_SESSION (if any) into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+/////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+// Only removes flash and non-flash data from the segment's 
+// sub-array in $_SESSION
+$sessionSegment->destroy();
+```
+
+## Usage of Flash Functionality
+
+The major use case of flashes is to store data that is only meant to be read from the session segment's flash storage once and only once and immediately it is read once, it is automatically removed from the session segment's flash storage.
+
+For example you may want to store a message indicating the status of an operation (like whether or not you were able to successfully delete a record from the database) in the the flash storage, which you intend to be read only once when another script runs that tries to read that data. Let's show how you can accomplish that between two scripts: **script-a.php** and **script-b.php**
+
+> Both scripts must create an instance of `\Josantonius\Session\FlashableSessionSegment` with the same segment name passed as the first argument to the constructor, in order to both be able to access flash data from the same session segment.
+
+### script-a.php
+
+```php
+include './vendor/autoload.php';
+
+use Josantonius\Session\FlashableSessionSegment;
+
+// Message to store in session segment's flash
+$statusMsg = "Operation Successful";
+
+//////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array.
+// 
+// This instance's objectsFlashData property has
+// a value of an empty array, since at this point
+// there is no data in the session segment's flash
+// array to be removed and copied into this instance's 
+// objectsFlashData property at this point.
+//////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+//////////////////////////////////////////////////
+// Store your message in the session segment's flash.
+// It will be loaded into the objectsFlashData property
+// of the next instance of FlashableSessionSegment with
+// the same segment name `demo-segment` and removed from
+// the session segment's flash when the constructor of
+// that next instance gets executed.
+//////////////////////////////////////////////////
+$sessionSegment->setInSessionFlash('operation-status', $statusMsg);
+```
+
+### script-b.php
+
+```php
+include './vendor/autoload.php';
+
+use Josantonius\Session\FlashableSessionSegment;
+
+//////////////////////////////////////////////////
+// Auto-resume existing session & read flash data
+// inside $_SESSION into this object's 
+// objectsFlashData property & reset the flash 
+// data in $_SESSION to an empty array
+// 
+// This instance's objectsFlashData property now
+// points to an array of all the flash data read 
+// and removed from the session segment's flash 
+// at this point.
+//////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+//////////////////////////////////////////////////
+// Retrieve the message from script-a.php stored 
+// in the session segment's flash with a key named 
+// `operation-status` which is now contained
+// in this object's flash 
+// (i.e. its objectsFlashData property) 
+//////////////////////////////////////////////////
+$statusMsg = 
+    $sessionSegment->getFromObjectsFlash('operation-status');
+// $statusMsg should contain the string "Operation Successful"
+var_dump($statusMsg);
+
+$nonExistentItem = 
+    $sessionSegment->getFromObjectsFlash('non-existent', false);
+// $nonExistentItem will contain false because no item 
+// with the key value of `non-existent` was ever stored
+// in the session segment's flash
+var_dump($nonExistentItem);
+```
+
+To test the 2 scripts above you should use a web-server or start php's built-in web-server. 
+
+> Running the scripts on the command line will not work because php cli always creates a new session for each script you execute that tries to start a session.
+
+To test both scripts, save both scripts in the same directory and start the built-in web-server by running the command below:
+
+`php -S 0.0.0.0:8888 -t .`
+
+Open your browser & browse to http://localhost:8888/script-a.php & then to http://localhost:8888/script-b.php
+
+You should see the output below:
+
+```
+string(20) "Operation Successful" bool(false)
+```
+
+### Other methods for interacting with flash data in both the session segment and instances of `\Josantonius\Session\FlashableSessionSegment`
+
+```php
+use Josantonius\Session\FlashableSessionSegment;
+
+// Message to store in session segment's flash
+$statusMsg = "Operation Successful";
+
+//////////////////////////////////////////////////
+// Auto-start new session & initialize sub-array
+// inside $_SESSION to store this objects data
+// in $_SESSION & initialize session segment's
+// flash data to an empty array.
+// 
+// This instance's objectsFlashData property has
+// a value of an empty array, since at this point
+// there is no data in the session segment's flash
+// array to be removed and copied into this
+// instance's objectsFlashData property at this point.
+//////////////////////////////////////////////////
+$sessionSegment = new FlashableSessionSegment('demo-segment');
+
+//////////////////////////////////////////////////
+// Store your message in the session segment's flash.
+// It will be loaded into the objectsFlashData property
+// of the next instance of FlashableSessionSegment with
+// the same segment name `demo-segment` and removed from
+// the session segment's flash when the constructor of
+// that next instance gets executed.
+//////////////////////////////////////////////////
+$sessionSegment->setInSessionFlash('operation-status', $statusMsg);
+
+// To get a value stored in the current object's
+// session segment's flash in the same script or
+// page request where the value was stored
+$sessionFlashVal = 
+  $sessionSegment->getFromSessionFlash('operation-status');
+// $sessionFlashVal will contain "Operation Successful"
+
+// To get an array of all values stored in the current object's
+// session segment's flash in the same script or
+// page request where the value was stored
+$allSessionFlashValues = 
+  $sessionSegment->getAllFromSessionFlash();
+
+// To remove a value from the current object's
+// session segment's flash in the same script or
+// page request where the value was stored
+$sessionSegment->removeFromFlash('operation-status', false, true);
+
+// To store a value in the current object's flash storage 
+// (not the session segment's flash storage inside $_SESSION)
+// This value will only always be available in the script
+// where it was set and will disappear once the object is
+// unset, garbage collected or the script finishes executing.
+$sessionSegment->setInObjectsFlash('value-in-object-flash', 'foo');
+
+// To get a value that was stored in the current object's
+// flash storage (not the session segment's flash storage 
+// inside $_SESSION)
+$val = $sessionSegment->getFromObjectsFlash('value-in-object-flash');
+// $val will have a value of 'foo'
+
+// To get an array of all values stored in the current object's
+// flash storage (not the session segment's flash storage 
+// inside $_SESSION)
+$allValues = $sessionSegment->getAllFromObjectsFlash();
+
+// To remove a value from the current object's flash storage 
+// (not the session segment's flash storage inside $_SESSION)
+$sessionSegment->removeFromFlash('value-in-object-flash', true, false);
+
+// To check if an attribute exists in the current object's 
+// flash storage (not the session segment's flash storage 
+// inside $_SESSION)
+$sessionSegment->hasInObjectsFlash('value-in-object-flash'); // returns true or false
+
+// To check if an attribute exists in the current object's
+// session segment's flash
+$sessionSegment->hasInSessionFlash('operation-status'); // returns true or false
+```
+
+
 
 ## Tests
 
