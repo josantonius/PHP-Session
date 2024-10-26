@@ -360,7 +360,7 @@ then an instance of **Josantonius\Session\Session** will be created & used to in
 The optional third argument to its constructor is an array of options for configuring the session. It must contain the same valid options acceptable by [session_start](https://www.php.net/manual/en/function.session-start.php).
 
 
-Creates an instance of `Josantonius\Session\FlashableSessionSegment`:
+Create an instance of `Josantonius\Session\FlashableSessionSegment`:
 
 ```php
 /**
@@ -392,7 +392,7 @@ Get the instance of `\Josantonius\Session\SessionInterface` being used to perfor
 public function getStorage(): SessionInterface;
 ```
 
-Starts the session:
+Start the session:
 
 ```php
 public function start(array $options = []): bool
@@ -404,13 +404,13 @@ Check if the session is started:
 public function isStarted(): bool;
 ```
 
-Gets all values stored via an instance of `Josantonius\Session\FlashableSessionSegment`:
+Get all values stored via an instance of `Josantonius\Session\FlashableSessionSegment`:
 
 ```php
 public function all(): array
 ```
 
-Checks if an attribute exists via an instance of `Josantonius\Session\FlashableSessionSegment`:
+Check if an attribute exists via an instance of `Josantonius\Session\FlashableSessionSegment`:
 
 ```php
 public function has(string $name): bool
@@ -425,13 +425,13 @@ Get the corresponding value associated with an attribute that was stored via an 
 public function get(string $name, mixed $default = null): mixed
 ```
 
-Sets an attribute and its corresponding value via an instance of `Josantonius\Session\FlashableSessionSegment`:
+Set an attribute and its corresponding value via an instance of `Josantonius\Session\FlashableSessionSegment`:
 
 ```php
 public function set(string $name, mixed $value): void
 ```
 
-Sets several attribute & value pairs at once via an instance of `Josantonius\Session\FlashableSessionSegment`:
+Set several attribute & value pairs at once via an instance of `Josantonius\Session\FlashableSessionSegment`:
 
 ```php
 /**
@@ -440,7 +440,7 @@ Sets several attribute & value pairs at once via an instance of `Josantonius\Ses
 public function replace(array $data): void
 ```
 
-Deletes an attribute associated with an instance of `Josantonius\Session\FlashableSessionSegment` by name and returns its value:
+Delete an attribute associated with an instance of `Josantonius\Session\FlashableSessionSegment` by name and returns its value:
 
 ```php
 /**
@@ -449,25 +449,25 @@ Deletes an attribute associated with an instance of `Josantonius\Session\Flashab
 public function pull(string $name, mixed $default = null): mixed
 ```
 
-Deletes an attribute associated with an instance of `Josantonius\Session\FlashableSessionSegment` by name:
+Delete an attribute associated with an instance of `Josantonius\Session\FlashableSessionSegment` by name:
 
 ```php
 public function remove(string $name): void
 ```
 
-Clears / frees all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`:
+Clear / free all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`:
 
 ```php
 public function clear(): void
 ```
 
-Gets the session ID:
+Get the session ID:
 
 ```php
 public function getId(): string
 ```
 
-Sets the session ID:
+Set the session ID:
 
 ```php
 /**
@@ -484,13 +484,13 @@ Update the current session ID with a newly generated one:
 public function regenerateId(bool $deleteOldSession = false): bool
 ```
 
-Gets the session name:
+Get the session name:
 
 ```php
 public function getName(): string;
 ```
 
-Sets the session name:
+Set the session name:
 
 ```php
 /**
@@ -501,7 +501,7 @@ Sets the session name:
 public function setName(string $name): void;
 ```
 
-Clears / frees all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`, but does not destroy the session **$_SESSION**. **$_SESSION** data written outside this class will remain intact:
+Clear / free all attributes and corresponding values stored via an instance of `Josantonius\Session\FlashableSessionSegment`, but does not destroy the session **$_SESSION**. **$_SESSION** data written outside this class will remain intact:
 
 ```php
 /**
