@@ -1565,6 +1565,11 @@ $sessionFlashVal =
 $allSessionFlashValues = 
   $sessionSegment->getAllFromSessionFlash();
 
+// To remove a value from the current object's
+// session segment's flash in the same script or
+// page request where the value was stored
+$sessionSegment->removeFromFlash('operation-status', false, true);
+
 // To store a value in the current object's flash storage 
 // (not the session segment's flash storage inside $_SESSION)
 // This value will only always be available in the script
@@ -1582,6 +1587,19 @@ $val = $sessionSegment->getFromObjectsFlash('value-in-object-flash');
 // flash storage (not the session segment's flash storage 
 // inside $_SESSION)
 $allValues = $sessionSegment->getAllFromObjectsFlash();
+
+// To remove a value from the current object's flash storage 
+// (not the session segment's flash storage inside $_SESSION)
+$sessionSegment->removeFromFlash('value-in-object-flash', true, false);
+
+// To check if an attribute exists in the current object's 
+// flash storage (not the session segment's flash storage 
+// inside $_SESSION)
+$sessionSegment->hasInObjectsFlash('value-in-object-flash'); // returns true or false
+
+// To check if an attribute exists in the current object's
+// session segment's flash
+$sessionSegment->hasInSessionFlash('operation-status'); // returns true or false
 ```
 
 
